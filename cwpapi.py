@@ -3,6 +3,24 @@ import base64,requests, random, string
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
+
+# EXCEPTIONS #
+
+class CWPException(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+class CWPAccountNotFoundException(CWPException):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+class CWPNoUsernamesAvailableException(CWPException):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+# END EXCEPTIONS #
+
+
+
 class CWPAccount:
     def __init__(self, account_data:dict):
 
@@ -28,14 +46,6 @@ class CWPAccount:
     def __str__(self) -> str:
         return f"CWPAccount(username={self.username}, domain={self.domain}, package={self.package_name}, status={self.status})"
     
-
-class CWPException(Exception):
-    def __init__(self, *args: object) -> None:
-        super().__init__(*args)
-
-class CWPAccountNotFoundException(CWPException):
-    def __init__(self, *args: object) -> None:
-        super().__init__(*args)
 
 class CWPapi:
     ACCOUNT_URL="account/"
@@ -67,7 +77,7 @@ class CWPapi:
         "action": ""
     }
 
-
+    MAX_USERNAME_LENGTH = 8
 
     def __init__(self, 
         api_key:str, 
@@ -187,7 +197,7 @@ class CWPapi:
 
     def _get_new_username(self)->str:
         """
-            Get new username
+            Create new username witha lenght of 8chars. A format of username_identifier+number. Example: w0000001
         """
         all_accounts=self.get_accounts()
 
@@ -202,7 +212,14 @@ class CWPapi:
             if current-last>1: break
             last=current
         
-        return f"{self.username_identifier}{last+1}" 
+        numbers=self.MAX_USERNAME_LENGTH-len(self.username_identifier)
+        future_username=last+1
+        result=str(pow(10,numbers)+future_username)[1:]
+
+        if pow(10,numbers)<future_username:
+            raise CWPNoUsernamesAvailableException("No more usernames available")
+
+        return f"{self.username_identifier}{result}" 
 
     def _post(self, top_url:str, action:str, data:dict={}):
         """
