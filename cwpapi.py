@@ -25,6 +25,9 @@ class CWPAccount:
         self.bandwidth_limit=account_data["bwlimit"]
         self.status=account_data["status"]
     
+    def __str__(self) -> str:
+        return f"CWPAccount(username={self.username}, domain={self.domain}, package={self.package_name}, status={self.status})"
+    
 
 class CWPException(Exception):
     def __init__(self, *args: object) -> None:
@@ -179,8 +182,7 @@ class CWPapi:
         })
 
 
-
-
+    # TODO: ALL the other functions ...
 
 
     def _get_new_username(self)->str:
