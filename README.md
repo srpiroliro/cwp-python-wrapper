@@ -1,4 +1,4 @@
-# CWP Python API Wrapper
+# CWP API Python Wrapper
 
 ## Usage examples:
 ```
